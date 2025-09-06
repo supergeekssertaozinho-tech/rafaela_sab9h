@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projeto Final Aulas de IA</title>
+<style>
+:root {
+  --bg: #000;
+  --text: #fff;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  cursor: pointer;
+}
+
+header {
+  padding: 2rem 1rem;
+  text-align: center;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 3vw + 1rem, 3rem);
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px rgba(0,0,0,.25);
+  opacity: 0;
+  transform: scale(0.8);
+  animation: zoomIn 1s forwards;
+  position: relative;
+  z-index: 2;
+}
+@keyframes zoomIn { to { opacity: 1; transform: scale(1); } }
+
+main { flex: 1; display: grid; place-items: center; padding: 2rem; position: relative; z-index: 2; }
+.card {
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  backdrop-filter: blur(4px);
+  background: rgba(0,0,0,0.7);
+  max-width: 720px;
+  width: 100%;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeCard 1s forwards 0.5s;
+}
+.card h2 { margin: 0 0 .5rem; font-size: 1.25rem; color: #fff; }
+.card p { margin: 0 0 1rem; line-height: 1.6; color: #fff; }
+.card img {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid #fff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  opacity: 0;
+  transform: scale(0.9);
+  animation: fadeIn 1s forwards;
+  margin-bottom: 1rem;
+}
+.card img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 1);
+}
+@keyframes fadeCard { to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { to { opacity: 1; transform: scale(1); } }
+
+.card .ia-text, .card .art-text {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #fff;
+  text-shadow: 0 0 4px #0ff, 0 0 8px #f0f;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  opacity: 0;
+  font-size: .9rem;
+  animation: fadeFooter 1s forwards 1s;
+  position: relative;
+  z-index: 2;
+}
+@keyframes fadeFooter { to { opacity: .85; } }
+
+.particle, .symbol { position: absolute; border-radius: 50%; opacity: 0.5; z-index: 1; pointer-events: none; }
+.particle { width: 5px; height: 5px; background: rgba(255,255,255,0.7); }
+.symbol { font-size: 14px; color: #0ff; }
+body::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(270deg, #ff0080, #7928ca, #00fff0);
+  background-size: 800% 800%;
+  animation: gradientBG 20s ease infinite;
+  z-index: 0;
+  opacity: 0.1;
+}
+@keyframes gradientBG { 0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%} }
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple-animation 1s ease-out forwards;
+  pointer-events: none;
+  z-index: 3;
+  background: rgba(0,255,255,0.5);
+  box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+}
+@keyframes ripple-animation { to { transform: scale(15); opacity: 0; } }
+
+/* Botão interativo */
+.corner-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #ff0080, #7928ca, #00fff0);
+  background-size: 200% 200%;
+  animation: gradientMove 3s linear infinite;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+  z-index: 9999;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.corner-btn:hover {
+  transform: scale(1.2) rotate(10deg);
+  box-shadow: 0 0 25px rgba(255, 0, 128, 1);
+}
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Painel de imagens (2x2 cubinhos) */
+.image-panel {
+  position: fixed;
+  bottom: 90px;
+  left: 20px;
+  width: 220px;
+  background: rgba(0,0,0,0.85);
+  border: 2px solid #fff;
+  border-radius: 12px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  justify-items: center;
+  box-shadow: 0 0 20px rgba(0,255,255,0.7);
+  z-index: 9998;
+  transform: translateY(150%);
+  opacity: 0;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+.image-panel.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+.image-panel img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #fff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+  cursor: pointer;
+}
+.image-panel img:hover {
+  transform: scale(1.1) rotate(2deg);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 25px rgba(255, 0, 255, 0.5);
+  filter: brightness(1.2) saturate(1.3);
+}
+
+/* Imagem ampliada no centro da tela */
+.zoomed-image {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 3px solid #0ff;
+  box-shadow: 0 0 30px #0ff, 0 0 60px #f0f;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 1;
+  z-index: 10000;
+  animation: zoomCenter 0.4s forwards ease;
+  cursor: pointer;
+}
+@keyframes zoomCenter {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+</style>
+</head>
+<body>
+<header>PROJETO FINAL AULAS DE IA</header>
+<main>
+  <div class="card">
+    <h2>Bem-vindo!</h2>
+    <img src="OIP.jpg" alt="Imagem de tecnologia">
+    <p class="ia-text">
+      As Inteligências Artificiais (IAs) realizam tarefas que normalmente exigiriam inteligência humana, analisando dados, reconhecendo padrões e automatizando processos.
+    </p>
+    <p class="art-text">
+      Além disso, as IAs criam artes digitais incríveis, produzindo imagens, pinturas, ilustrações e designs que combinam criatividade humana e tecnologia. É uma nova forma de expressão artística, única e fascinante!
+    </p>
+  </div>
+</main>
+<footer>© 2025 — Seu Projeto</footer>
+
+<!-- Painel de imagens -->
+<div class="image-panel" id="imagePanel">
+  <img src="20250809_1022_Personagem Pixel no Bosque_simple_compose_01k27fv91nfz2tnha50mp9qhr5.png" alt="Imagem 1">
+  <img src="20250812_1448_Pixelated Snowy Adventure_simple_compose_01k2fp6fg7fqxvabgrpprwrwrm.png" alt="Imagem 2">
+  <img src="20250812_1448_Pixelated Snowy Adventure_simple_compose_01k2fp6fg6e0vtshvyqc15hjns.png" alt="Imagem 3">
+  <img src="20250809_1022_Personagem Pixel no Bosque_simple_compose_01k27fv91pfx8by7bg3ds0cna8.png" alt="Imagem 4">
+</div>
+
+<!-- Botão interativo -->
+<button class="corner-btn" onclick="togglePainel()">⚡</button>
+
+<script>
+// Fundo animado
+const particles=[], symbols=[];
+for(let i=0;i<50;i++){
+  let p=document.createElement('div'); p.className='particle'; p.style.left=Math.random()*100+'vw';
+  p.style.top=Math.random()*-100+'vh'; document.body.appendChild(p); particles.push({el:p,speed:Math.random()+0.5});
+}
+const symbolsArray=['0','1','⚙️','🤖'];
+for(let i=0;i<30;i++){
+  let s=document.createElement('div'); s.className='symbol'; s.innerText=symbolsArray[Math.floor(Math.random()*symbolsArray.length)];
+  s.style.left=Math.random()*100+'vw'; s.style.top=Math.random()*-100+'vh'; document.body.appendChild(s);
+  symbols.push({el:s,speed:Math.random()+0.5});
+}
+let mouseX=window.innerWidth/2, mouseY=window.innerHeight/2;
+document.addEventListener('mousemove', e=>{mouseX=e.clientX; mouseY=e.clientY;});
+function animateBG(){
+  particles.forEach(p=>{let top=parseFloat(p.el.style.top); top+=p.speed; if(top>window.innerHeight) top=-10; p.el.style.top=top+'px'; let dx=(mouseX-parseFloat(p.el.style.left))*0.02; let dy=(mouseY-top)*0.02; p.el.style.transform=`translate(${dx}px,${dy}px)`;});
+  symbols.forEach(s=>{let top=parseFloat(s.el.style.top); top+=s.speed; if(top>window.innerHeight) top=-10; s.el.style.top=s.el.style.top+'px'; let dx=(mouseX-parseFloat(s.el.style.left))*0.02; let dy=(mouseY-top)*0.02; s.el.style.transform=`translate(${dx}px,${dy}px)`;});
+  requestAnimationFrame(animateBG);
+}
+animateBG();
+
+// Ripple
+document.body.addEventListener('click', e=>{
+  const ripple=document.createElement('span'); ripple.className='ripple';
+  ripple.style.left=`${e.clientX-10}px`; ripple.style.top=`${e.clientY-10}px`; ripple.style.width=ripple.style.height='20px';
+  document.body.appendChild(ripple); setTimeout(()=>ripple.remove(),1000);
+});
+
+// Mostrar/ocultar painel
+function togglePainel() {
+  const panel = document.getElementById('imagePanel');
+  panel.classList.toggle("show");
+}
+
+// Zoom centro da tela uma vez para abrir e uma vez para fechar
+let zoomed = null;
+document.querySelectorAll('.image-panel img').forEach(img=>{
+  img.addEventListener('click', ()=>{
+    if(zoomed){
+      zoomed.remove();
+      zoomed = null;
+    } else {
+      zoomed = document.createElement('img');
+      zoomed.src = img.src;
+      zoomed.className = 'zoomed-image';
+      document.body.appendChild(zoomed);
+      zoomed.addEventListener('click', ()=>{ zoomed.remove(); zoomed=null; });
+    }
+  });
+});
+</script>
+</body>
+</html>
